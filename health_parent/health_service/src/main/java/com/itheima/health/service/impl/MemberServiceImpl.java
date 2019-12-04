@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName CheckItemServiceImpl
@@ -41,15 +42,24 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<Integer> findMemberCountByRegTime(List<String> months) {
-        List<Integer> memberCount = new ArrayList<>();
-        if(months!=null && months.size()>0){
-            for (String month : months) { // 格式2018-12
-                String regTime = month+"-31";
-                Integer count = memberDao.findMemberCountByRegTime(regTime);
-                memberCount.add(count);
-            }
+    public List<Integer> findMemberNumByMonth(List<String> months) {
+        ArrayList<Integer> arrayList = new ArrayList<>();
+        for (String month : months) {
+            String beginMonth = month + "-1";
+            String endMonth = month + "-31";
+            Integer count = memberDao.findMemberNumBetweenDate(beginMonth,endMonth);
+            arrayList.add(count);
         }
-        return memberCount;
+        return arrayList;
+    }
+
+    @Override
+    public List<Map<String, Object>> findMemberNumBySex() {
+        return memberDao.findMemberNumBySex();
+    }
+
+    @Override
+    public List<Map<String, Object>> findMemberNumByAge() {
+        return memberDao.findMemberNumByAge();
     }
 }

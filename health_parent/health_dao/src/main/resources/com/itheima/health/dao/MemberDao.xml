@@ -22,10 +22,9 @@
                 >         &gt;
                 &         &amp;
     -->
-    <select id="findMemberCountByRegTime" parameterType="string" resultType="int">
-        SELECT COUNT(*) FROM t_member WHERE regTime &lt;= #{regTime}
+    <select id="findMemberNumBetweenDate" resultType="int">
+        select count(id) from t_member where regTime &gt;= #{beginMonth} and regTime &lt;= #{endMonth}
     </select>
-
 
     <!--今天新增会员数-->
     <select id="findTodayNewMember" parameterType="string" resultType="int">
@@ -40,5 +39,35 @@
     <!--本周新增会员数，本月新增会员数-->
     <select id="findThisNewMember" parameterType="string" resultType="int">
         SELECT COUNT(*) FROM t_member WHERE regTime &gt;= #{date}
+    </select>
+
+    <!--统计男女会员占比饼形图-->
+    <select id="findMemberNumBySex" resultType="map">
+        SELECT (CASE m.sex WHEN '1' THEN '男' ELSE '女' END) as name,count(m.id) as value FROM t_member m GROUP BY m.sex
+    </select>
+
+    <!--统计会员年龄段占比饼形图-->
+    <select id="findMemberNumByAge" resultType="map">
+        SELECT
+        name,
+        COUNT(name) AS value
+        FROM
+        (
+        SELECT
+        CASE
+        WHEN age &lt; 18 THEN	'0-18岁'
+        WHEN age &lt;= 30 THEN	'18-30岁'
+        WHEN age &lt;= 45 THEN	'30-45岁'
+        WHEN age &lt;= 60 THEN	'45-60岁'
+        ELSE '60岁及以上'
+        END AS name
+        FROM
+            (
+            SELECT
+            TIMESTAMPDIFF(YEAR,birthday,NOW()) as age
+            FROM
+            t_member m WHERE m.birthday is not NULL
+            )t
+        )t GROUP BY name
     </select>
 </mapper>

@@ -6,10 +6,12 @@ import com.itheima.health.entity.Result;
 import com.itheima.health.service.MemberService;
 import com.itheima.health.service.ReportService;
 import com.itheima.health.service.SetmealService;
+import com.itheima.health.utils.DateUtils;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
@@ -18,8 +20,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName CheckItemController
@@ -42,29 +46,74 @@ public class ReportController {
     @Reference
     ReportService reportService;
 
-    // 获取会员数量（折线图）
-    @RequestMapping(value = "/getMemberReport")
-    public Result getMemberReport(){
+    /**
+     * 统计每个月的注册会员数量折线图
+     *
+     * @return
+     */
+    @RequestMapping("/getMemberReport")
+    public Result getMemberReport(@RequestParam(required = true) String[] dates) {
         try {
-            List<String> months = new ArrayList<>();
-            // 根据当前时间，获取过去12个月年月情况
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MONTH,-12);// -12表示根据当前时间，将Calendar对象向前推12个月（从2018-12）
-            for (int i = 0; i < 12; i++) {
-                calendar.add(Calendar.MONTH,1);// 从2018-12，累加计算年月
-                months.add(new SimpleDateFormat("yyyy-MM").format(calendar.getTime()));
-            }
-            // 使用年月查询对应年月的会员注册情况
-            List<Integer> memberCount = memberService.findMemberCountByRegTime(months);
-            // 响应的数据
-            Map map = new HashMap();
-            map.put("months",months); // List<String> --:[“2018-12”,”2019-01”,”2019-02”,...”2019-11”]
-            map.put("memberCount",memberCount);  // List<Integer>  --:[5,20,31,...40]
-            return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS,map);
+            //获取两个日期之间的所有月份
+            List<String> months = DateUtils.getMonthBetween(dates[0], dates[1]);
+
+            //根据月份获取每月的会员数量
+            List<Integer> memberNum = memberService.findMemberNumByMonth(months);
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("months", months);
+
+            map.put("memberNum", memberNum);
+            return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS, map);
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(false, MessageConstant.GET_MEMBER_NUMBER_REPORT_FAIL);
         }
+
+    }
+
+    /**
+     * 统计男女会员占比饼形图
+     *
+     * @return
+     */
+    @RequestMapping("/getMemberBySex")
+    public Result getMemberBySex() {
+        List<Map<String, Object>> list = memberService.findMemberNumBySex();
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("sexNum", list);
+
+        ArrayList<String> sexNames = new ArrayList<>();
+        for (Map<String, Object> m : list) {
+            String name = (String) m.get("name");
+            sexNames.add(name);
+        }
+        map.put("sexNames", sexNames);
+
+        return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS, map);
+    }
+
+    /**
+     * 统计会员年龄段占比饼形图
+     *
+     * @return
+     */
+    @RequestMapping("/getMemberByAge")
+    public Result getMemberByAge() {
+        List<Map<String, Object>> list = memberService.findMemberNumByAge();
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("ageNum", list);
+
+        ArrayList<String> ages = new ArrayList<>();
+        for (Map<String, Object> m : list) {
+            String name = (String) m.get("name");
+            ages.add(name);
+        }
+        map.put("ages", ages);
+
+        return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS, map);
     }
 
 

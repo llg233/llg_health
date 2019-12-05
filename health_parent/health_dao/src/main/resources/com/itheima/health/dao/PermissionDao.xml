@@ -7,4 +7,49 @@
     <select id="findPermissionsByRoleId" parameterType="int" resultType="permission">
         SELECT p.* FROM t_permission p,t_role_permission rp WHERE p.id = rp.permission_id AND role_id = #{roleId}
     </select>
+
+    <insert id="add" parameterType="permission">
+        INSERT INTO t_permission(name,keyword,description)
+        VALUES (#{name},#{keyword},#{description})
+    </insert>
+
+
+    <select id="selectByCondition" parameterType="string" resultType="permission">
+        SELECT * FROM t_permission
+        <if test="value!=null and value.length>0">
+            WHERE keyword LIKE concat('%',#{value},'%') or name LIKE concat('%',#{value},'%')
+        </if>
+    </select>
+
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM t_permission WHERE id=#{id}
+    </delete>
+
+
+    <select id="findCountByPermissionId" parameterType="int" resultType="long">
+        SELECT count(*) FROM t_role_permission WHERE permission_id=#{id}
+    </select>
+
+
+    <select id="findById" parameterType="int" resultType="permission">
+        SELECT * FROM t_permission WHERE id=#{id}
+    </select>
+
+
+    <update id="edit" parameterType="permission">
+        UPDATE t_permission
+        <set>
+            <if test="name!=null and name.length>0">
+                name=#{name},
+            </if>
+            <if test="keyword!=null and keyword.length>0">
+                keyword=#{keyword},
+            </if>
+            <if test="description!=null and description.length>0">
+                description=#{description},
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
 </mapper>

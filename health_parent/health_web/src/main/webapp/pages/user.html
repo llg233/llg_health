@@ -334,7 +334,6 @@
                 },
                 //添加
                 handleAdd () {
-                    alert(this.roleIds);
                     //发送Ajax请求将模型数据提交到后台处理
                     axios.post("/user/add.do?roleIds="+this.roleIds,this.formData).then((response)=>{
                         var telephone = this.formData.telephone;

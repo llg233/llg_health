@@ -1,11 +1,19 @@
 package com.itheima.health.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.itheima.health.dao.UserDao;
+import com.itheima.health.entity.PageResult;
+import com.itheima.health.pojo.Role;
 import com.itheima.health.pojo.User;
 import com.itheima.health.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName CheckItemServiceImpl
@@ -26,5 +34,69 @@ public class UserServiceImpl implements UserService {
     public User findUserByUsername(String username) {
         User user = userDao.findUserByUsername(username);
         return user;
+    }
+
+    //新增
+    @Override
+    public void add(User user, Integer[] roleIds) {
+        userDao.add(user);
+
+        setUserAndRole(user.getId(),roleIds);
+    }
+    private void setUserAndRole(Integer userId, Integer[] roleIds) {
+        if(roleIds != null && roleIds.length > 0){
+            for (Integer roleId : roleIds) {
+                Map<String,Integer> map = new HashMap<String,Integer>();
+                map.put("userid",userId);
+                map.put("roleid",roleId);
+                userDao.setUserAndRole(map);
+            }
+        }
+    }
+
+    //分页查询
+    @Override
+    public PageResult pageQuery(Integer currentPage, Integer pageSize, String queryString) {
+        PageHelper.startPage(currentPage,pageSize);
+        Page<User> page = userDao.selectByCondition(queryString);
+        PageResult pageResult = new PageResult(page.getTotal(),page.getResult());
+        return pageResult;
+    }
+
+    //删除
+    @Override
+    public void delete(Integer id) {
+        //查询当前用户是否和角色关联
+        long count = userDao.findCountByRoleId(id);
+        if (count >0){
+            //当前用户被引用,不能删除
+            throw new RuntimeException("当前用户信息被角色信息引用,不能删除");
+        }
+        userDao.deleteById(id);
+    }
+
+    @Override
+    public User findById(Integer id) {
+        return userDao.findById(id);
+    }
+
+    @Override
+    public List<Integer> findRoleIdsByUserId(Integer id) {
+        return userDao.findRoleIdsByUserId(id);
+    }
+
+    //编辑用户,同时需要更新和角色的关联关系
+    @Override
+    public void edit(User user, Integer[] roleIds) {
+        //根据用户ID删除中间表数据
+        userDao.deleteAssociation(user.getId());
+        setUserAndRole(user.getId(),roleIds);
+        //更新用户基本信息
+        userDao.edit(user);
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return userDao.findAll();
     }
 }

@@ -12,4 +12,80 @@
     <select id="findUserByUsername" parameterType="string" resultMap="userMap">
         SELECT * FROM t_user WHERE username = #{username}
     </select>
+
+    <!--新增-->
+    <insert id="add" parameterType="User">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO t_user(birthday,gender,username,password,remark,station,telephone)VALUES (#{birthday},#{gender},#{username},#{password},#{remark},#{station},#{telephone})
+    </insert>
+    <!--设置用户和角色的关联关系-->
+    <insert id="setUserAndRole" parameterType="hashmap">
+        INSERT INTO t_user_role (user_id,role_id)VALUES (#{userid},#{roleid})
+    </insert>
+
+    <!--分页查询-->
+    <select id="selectByCondition" parameterType="string" resultType="User">
+        SELECT * FROM t_user
+        <if test="value != null and value.length > 0">
+            WHERE username like concat('%',#{value},'%')
+        </if>
+    </select>
+
+
+    <!--根据检查项id查询中间关系表-->
+    <select id="findById" parameterType="int" resultType="User">
+        SELECT * FROM t_user WHERE id = #{id}
+    </select>
+    <select id="findRoleIdsByUserId" resultType="int" parameterType="int">
+        SELECT role_id FROM t_user_role WHERE user_id = #{id}
+    </select>
+
+    <!--根据用户ID删除中间表数据-->
+    <delete id="deleteAssociation" parameterType="int">
+        DELETE FROM t_user_role WHERE user_id = #{id}
+    </delete>
+    <!--编辑,如果表单中传递空值,则不该更新该字段值-->
+    <update id="edit" parameterType="user">
+        UPDATE t_user
+        <set>
+            <if test="username != null and username.length>0">
+                username=#{username},
+            </if>
+            <if test="password != null and password.length>0">
+                password=#{password},
+            </if>
+            <if test="birthday != null">
+                birthday=#{birthday},
+            </if>
+            <if test="gender != null">
+                gender=#{gender},
+            </if>
+            <if test="remark != null and remark.length>0">
+                remark=#{remark},
+            </if>
+            <if test="station != null and station.length>0">
+                station=#{station},
+            </if>
+            <if test="telephone != null and telephone.length>0">
+                telephone=#{telephone},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM t_user WHERE id=#{id}
+    </delete>
+    <!--根据用户id查询中间关系表-->
+    <select id="findCountByRoleId" resultType="long" parameterType="int">
+        SELECT COUNT(*) FROM t_user_role WHERE role_id = #{role_id}
+    </select>
+
+    <!--查询所有-->
+    <select id="findAll" resultType="role">
+        SELECT * FROM t_role
+    </select>
 </mapper>

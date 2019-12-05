@@ -52,4 +52,10 @@
         </set>
         WHERE id=#{id}
     </update>
+
+    <!--查找所有权限-->
+    <select id="findAll" resultType="Permission">
+        select * from t_permission
+    </select>
+
 </mapper>

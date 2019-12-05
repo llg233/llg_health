@@ -1,6 +1,7 @@
 package com.itheima.health.dao;
 
 import com.github.pagehelper.Page;
+import com.itheima.health.pojo.Menu;
 import com.itheima.health.pojo.Role;
 import com.itheima.health.pojo.User;
 
@@ -30,4 +31,6 @@ public interface UserDao {
     long findCountByRoleId(Integer id);
 
     List<Role> findAll();
+
+    List<Menu> findUserMenu(String username);
 }

@@ -1,9 +1,11 @@
 package com.itheima.health.service;
 
 import com.itheima.health.entity.PageResult;
+import com.itheima.health.pojo.Menu;
 import com.itheima.health.pojo.Role;
 import com.itheima.health.pojo.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface UserService {
@@ -23,4 +25,6 @@ public interface UserService {
     void edit(User user, Integer[] roleIds);
 
     List<Role> findAll();
+
+    ArrayList<Menu> findUserMenu(String username);
 }

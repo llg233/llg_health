@@ -59,11 +59,11 @@
                         <el-submenu v-for="menu in menuList" :index="menu.path">
                             <template slot="title">
                                 <i class="fa" :class="menu.icon"></i>
-                                {{menu.title}}
+                                {{menu.name}}
                             </template>
                             <template v-for="child in menu.children">
                                 <el-menu-item :index="child.path">
-                                    <a :href="child.linkUrl" target="right">{{child.title}}</a>
+                                    <a :href="child.linkUrl" target="right">{{child.name}}</a>
                                 </el-menu-item>
                             </template>
                         </el-submenu>
@@ -87,7 +87,7 @@
         data:{
             username:"",
             menuList:[
-                {
+                /*{
                     "path": "1",
                     "title": "工作台",
                     "icon":"fa-dashboard",
@@ -195,34 +195,28 @@
                 {
                     "path": "6",     //菜单项所对应的路由路径
                     "title": "系统设置",     //菜单项名称
-                    "icon":"fa-users",
+                    "icon":"fa-heartbeat",
                     "children":[//是否有子菜单，若没有，则为[]
                         {
                             "path": "/6-1",
-                            "title": "菜单管理",
-                            "linkUrl":"menu.html",
+                            "title": "角色管理",
+                            "linkUrl":"role.html",
                             "children":[]
                         },
                         {
                             "path": "/6-2",
                             "title": "权限管理",
-                            "linkUrl":"permission.html",
+                            "linkUrl":"report_setmeal.html",
                             "children":[]
                         },
                         {
                             "path": "/6-3",
-                            "title": "角色管理",
-                            "linkUrl":"",
-                            "children":[]
-                        },
-                        {
-                            "path": "/6-4",
-                            "title": "用户管理",
-                            "linkUrl":"user.html",
+                            "title": "菜单管理",
+                            "linkUrl":"report_business.html",
                             "children":[]
                         }
                     ]
-                }
+                }*/
             ]
         },
         // 钩子函数
@@ -234,20 +228,27 @@
                     this.$message({
                         type:"success",
                         message:response.data.message
-                    })
+                    });
                     // 对username赋值
                     this.username = response.data.data;
+                    //对菜单赋值
+                    //发送用户名字请求请求用户的菜单
+                    axios.post("/user/findUserMenu.do?username="+this.username).then((result)=>{
+                        if (result.data.flag) {
+                            this.menuList = result.data.data;
+                        }
+                    })
                 }else{
                     this.$message({
                         type:"error",
                         message:response.data.message
-                    })
+                    });
                     this.username = "未知用户";
                 }
             }).catch((error)=>{
 
             })
-        }
+        },
     });
     $(function() {
             var wd = 200;

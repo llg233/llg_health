@@ -20,6 +20,23 @@
     <!--1：自定义Job-->
     <bean id="jobDemo" class="com.itheima.health.job.ClearImgJobDemo"></bean>
 
+
+    <!--2：任务描述，创建任务调度细节类，告诉执行的类和执行的方法-->
+    <bean id="jobDetail2" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!--任务类-->
+        <property name="targetObject" ref="jobDemo"></property>
+        <!--任务类中的方法-->
+        <property name="targetMethod" value="clearOrderSetting"></property>
+    </bean>
+
+    <!--3：定义触发器：什么时间执行任务描述-->
+    <bean id="trigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetail2"></property>
+        <!--触发器的表达式
+        -->
+        <property name="cronExpression" value="0 0 2 L * ?"></property>
+    </bean>
+
     <!--2：任务描述，创建任务调度细节类，告诉执行的类和执行的方法-->
     <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <!--任务类-->
@@ -41,6 +58,7 @@
         <property name="triggers">
             <list>
                 <ref bean="trigger"></ref> <!--执行多个触发器-->
+                <ref bean="trigger2"></ref>
             </list>
         </property>
     </bean>

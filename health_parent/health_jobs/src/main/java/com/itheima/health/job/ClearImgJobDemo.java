@@ -1,6 +1,8 @@
 package com.itheima.health.job;
 
 import com.itheima.health.constant.RedisMessageConstant;
+import com.itheima.health.dao.OrderSettingDao;
+import com.itheima.health.utils.DateUtils;
 import com.itheima.health.utils.QiniuUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.JedisPool;
@@ -21,6 +23,14 @@ public class ClearImgJobDemo {
     @Autowired
     JedisPool jedisPool;
 
+
+    @Autowired
+    OrderSettingDao orderSettingDao;
+
+
+
+
+
     // 删除图片（删除七牛云、删除Redis）
     public void clearImg(){
         // 使用Redis的集合存储特点，比较集合中的key获取不同的value值
@@ -32,10 +42,15 @@ public class ClearImgJobDemo {
             //1：删除七牛云上垃圾图片
             QiniuUtils.deleteFileFromQiniu(img);
             //2：删除Redis中key值SetmealPicResource的垃圾图片
-            jedisPool.getResource().srem(RedisMessageConstant.SETMEAL_PIC_RESOURCE,img);
-        }
-
-
-
+            jedisPool.getResource().srem(RedisMessageConstant.SETMEAL_PIC_RESOURCE,img);}
     }
+
+    //
+    public void clearOrderSetting() throws Exception {
+        System.out.println("清理预约设置了");
+        //操作数据库,
+        String today = DateUtils.parseDate2String(DateUtils.getToday());
+        orderSettingDao.clearOrderSetting(today);
+    }
+
 }

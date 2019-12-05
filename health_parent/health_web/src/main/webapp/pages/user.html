@@ -334,8 +334,9 @@
                 },
                 //添加
                 handleAdd () {
+                    alert(this.roleIds);
                     //发送Ajax请求将模型数据提交到后台处理
-                    axios.post("/user/add.do?userIds="+this.userIds,this.formData).then((response)=>{
+                    axios.post("/user/add.do?roleIds="+this.roleIds,this.formData).then((response)=>{
                         var telephone = this.formData.telephone;
                         if (!checkTelephone(telephone)){
                             this.$message.error('请输入正确的手机号');
@@ -422,7 +423,7 @@
                     //默认切换到第一个标签页
                     this.activeName = 'first';
                     //重置
-                    this.userIds = [];
+                    this.roleIds = [];
                     //发送Ajax请求查询所有检查项信息
                     this.findAll();
                 },

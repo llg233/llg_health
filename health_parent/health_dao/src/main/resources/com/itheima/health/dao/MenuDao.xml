@@ -52,5 +52,13 @@
         </set>
         where id = #{id}
     </update>
+    <!--    //根据roleid查找menu-->
+    <select id="findMenuByRoleId" resultType="menu" parameterType="int">
+        select * from t_menu where id in (select menu_id from t_role_menu where role_id=#{id})
+    </select>
 
+    <!--查找所有菜单-->
+    <select id="findAll" resultType="Menu">
+        select * from t_menu
+    </select>
 </mapper>

@@ -88,4 +88,10 @@
     <select id="findAll" resultType="role">
         SELECT * FROM t_role
     </select>
+
+    <!--查询用户所有菜单-->
+    <select id="findUserMenu" parameterType="string" resultType="com.itheima.health.pojo.Menu">
+       select distinct m.* from t_user_role ur, t_user u ,t_role_menu rm ,t_menu m where  u.username = #{name} and u.id =ur.user_id  and rm.role_id = ur.role_id AND m.id = rm.menu_id;
+    </select>
+
 </mapper>

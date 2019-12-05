@@ -5,6 +5,7 @@ import com.itheima.health.constant.MessageConstant;
 import com.itheima.health.entity.PageResult;
 import com.itheima.health.entity.QueryPageBean;
 import com.itheima.health.entity.Result;
+import com.itheima.health.pojo.Menu;
 import com.itheima.health.pojo.Role;
 import com.itheima.health.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -122,5 +124,12 @@ public class UserController {
             return result;
         }
         return new Result(false,MessageConstant.QUERY_USER_FAIL);
+    }
+
+    //findUserPage查找用户所拥有的菜单;
+    @RequestMapping(value = "/findUserMenu")
+    public Result findUserMenu(String username){
+        ArrayList<Menu> userMenu = userService.findUserMenu(username);
+        return new Result(true,"成功",userMenu);
     }
 }

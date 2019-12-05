@@ -2,7 +2,89 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.itheima.health.dao.RoleDao">
-    
+
+
+
+    <!--分页查询-->
+    <select id="findPage" resultType="role" parameterType="string">
+        select * from t_role
+        <where>
+            <if test="value != null and value != ''">
+                name like concat('%',#{value},'%') or keyword like concat('%',#{value},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--添加一个角色-->
+    <insert id="add" parameterType="role">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_role (name , keyword ,description) values (#{name}, #{keyword}, #{description} )
+    </insert>
+
+    <!--添加角色时中间表添加数据-->
+    <insert id="roleAddPermission" parameterType="integer">
+        insert into t_role_permission (role_id,permission_id) values (#{role_id},#{permission_id})
+    </insert>
+    <!--    //添加角色菜单中间表-->
+    <insert id="roleAddmenu" parameterType="integer">
+        insert into t_role_menu (role_id,menu_id) values (#{role_id},#{menu_id})
+    </insert>
+
+    <!--角色更新-->
+    <update id="edit" parameterType="role">
+        update t_role
+        <set>
+            <if test="name!=null and !''.equals(name)">
+                name = #{name},
+            </if>
+            <if test="keyword!=null and !''.equals(keyword)">
+                keyword = #{keyword},
+            </if>
+            <if test="description!=null and !''.equals(description)">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <!--    删除角色-->
+    <delete id="delete" parameterType="int">
+        delete from t_role where id = #{id}
+    </delete>
+
+    <!--    //清除关联菜单的数据-->
+    <delete id="removeMenu" parameterType="int">
+        delete from t_role_menu where role_id = #{id}
+    </delete>
+
+    <!--    //清除关联权限的数据-->
+    <delete id="removePremission" parameterType="int">
+        delete from t_role_permission where role_id = #{id}
+    </delete>
+
+    <!--    //根据id查找-->
+    <select id="findById" parameterType="int" resultMap="getRole">
+        select * from t_role where id=#{id}
+    </select>
+    <resultMap id="getRole" type="role">
+        <id property="id" column="id"/>
+        <collection property="permissions" column="id"
+                    select="com.itheima.health.dao.PermissionDao.findPermissionsByRoleId"/>
+        <collection property="menus" column="id" select="com.itheima.health.dao.MenuDao.findMenuByRoleId"/>
+    </resultMap>
+
+    <!--查找所有fu菜单-->
+    <select id="findParentMenu" resultType="int">
+        select distinct parentMenuId from t_menu where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
     <!--使用用户id，查询角色的集合-->
     <resultMap id="roleMap" type="role">
         <id property="id" column="id"></id>
@@ -12,4 +94,15 @@
     <select id="findRolesByUserId" parameterType="int" resultMap="roleMap">
         SELECT r.* FROM t_role r,t_user_role ur WHERE r.id = ur.role_id AND user_id = #{userId}
     </select>
+
+    <!--使用用户id，查询角色的集合-->
+    <!--<resultMap id="roleMap" type="role">
+        <id property="id" column="id"></id>
+        &lt;!&ndash;<result property="name" column="name"></result>&ndash;&gt;
+        <collection property="permissions" column="id" select="com.itheima.health.dao.PermissionDao.findPermissionsByRoleId"></collection>
+    </resultMap>
+    <select id="findRolesByUserId" parameterType="int" resultMap="roleMap">
+        SELECT r.* FROM t_role r,t_user_role ur WHERE r.id = ur.role_id AND user_id = #{userId}
+    </select>-->
+
 </mapper>
